@@ -16,6 +16,7 @@ public class SliderSetting extends Setting {
    private double intervals;
    public boolean isString;
    private String suffix = "";
+   private String minString = null;
    public boolean canBeDisabled;
    public GroupSetting groupSetting;
 
@@ -42,6 +43,12 @@ public class SliderSetting extends Setting {
    public SliderSetting(String settingName, String suffix, double defaultValue, double min, double max, double intervals) {
       this((GroupSetting)null, settingName, defaultValue, min, max, intervals);
       this.suffix = suffix;
+   }
+
+   /** Label shown instead of the numeric value while the slider sits at its minimum. */
+   public SliderSetting(String settingName, String suffix, String minString, double defaultValue, double min, double max, double intervals) {
+      this(settingName, suffix, defaultValue, min, max, intervals);
+      this.minString = minString;
    }
 
    public SliderSetting(String settingName, boolean canBeDisabled, double defaultValue, double min, double max, double intervals) {
@@ -76,6 +83,11 @@ public class SliderSetting extends Setting {
       this((GroupSetting)null, settingName, defaultValue, options);
    }
 
+   public SliderSetting(String settingName, boolean canBeDisabled, int defaultValue, String[] options) {
+      this(settingName, defaultValue, options);
+      this.canBeDisabled = canBeDisabled;
+   }
+
    public SliderSetting(String settingName, String suffix, int defaultValue, String[] options) {
       this((GroupSetting)null, settingName, defaultValue, options);
       this.suffix = suffix;
@@ -90,8 +102,25 @@ public class SliderSetting extends Setting {
       return this.suffix;
    }
 
+   public String getMinString() {
+      return this.minString;
+   }
+
+   public void setMinString(String minString) {
+      this.minString = minString;
+   }
+
    public String[] getOptions() {
       return this.options;
+   }
+
+   public String getSelectedOption() {
+      if (this.isString && this.options != null && this.options.length != 0) {
+         int index = (int)Math.max(0L, Math.min((long)(this.options.length - 1), Math.round(this.defaultValue)));
+         return this.options[index];
+      } else {
+         return null;
+      }
    }
 
    @Override

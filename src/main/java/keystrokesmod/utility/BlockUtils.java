@@ -30,9 +30,11 @@ import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumDyeColor;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
@@ -193,6 +195,12 @@ public class BlockUtils {
 
    public static boolean replaceable(BlockPos blockPos) {
       return !Utils.nullCheck() ? true : getBlock(blockPos).isReplaceable(mc.theWorld, blockPos);
+   }
+
+   public static boolean canPlaceBlockOnSide(ItemStack stack, BlockPos pos, EnumFacing side) {
+      return stack != null && stack.getItem() instanceof ItemBlock
+         ? ((ItemBlock)stack.getItem()).canPlaceBlockOnSide(mc.theWorld, pos, side, mc.thePlayer, stack)
+         : false;
    }
 
    public static boolean canSeeVecBlock(BlockPos pos, Vec3 vecPlayer, Vec3 vecBlockPoint) {

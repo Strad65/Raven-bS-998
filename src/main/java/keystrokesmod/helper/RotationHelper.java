@@ -107,7 +107,7 @@ public class RotationHelper {
       }
    }
 
-   private boolean fixMovement() {
+   public boolean fixMovement() {
       return (Settings.movementFix != null && Settings.movementFix.isToggled() || this.forceMovementFix) && this.setRotations;
    }
 
@@ -152,5 +152,13 @@ public class RotationHelper {
    public void setPitch(float pitch) {
       this.serverPitch = pitch;
       this.setRotations = true;
+   }
+
+   public Float getServerYaw() {
+      return this.serverYaw;
+   }
+
+   public Float getServerPitch() {
+      return this.serverPitch;
    }
 }

@@ -74,6 +74,8 @@ import keystrokesmod.module.impl.player.NoFall;
 import keystrokesmod.module.impl.player.NoRotate;
 import keystrokesmod.module.impl.player.Safewalk;
 import keystrokesmod.module.impl.player.Scaffold;
+import keystrokesmod.module.impl.player.Scaffold2;
+import keystrokesmod.module.impl.player.Stasis;
 import keystrokesmod.module.impl.player.Tower;
 import keystrokesmod.module.impl.player.WaterBucket;
 import keystrokesmod.module.impl.render.AntiDebuff;
@@ -146,6 +148,7 @@ public class ModuleManager {
    public static Bhop bhop;
    public static NoHurtCam noHurtCam;
    public static Scaffold scaffold;
+   public static Scaffold2 scaffold2;
    public static AutoTool autoTool;
    public static Sprint sprint;
    public static Weather weather;
@@ -188,6 +191,7 @@ public class ModuleManager {
       this.addModule(invManager = new InvManager());
       this.addModule(new ChatBypass());
       this.addModule(scaffold = new Scaffold());
+      this.addModule(scaffold2 = new Scaffold2());
       this.addModule(blink = new Blink());
       this.addModule(new AutoRequeue());
       this.addModule(new AntiAFK());
@@ -266,6 +270,7 @@ public class ModuleManager {
       this.addModule(timers = new Timers());
       this.addModule(lagRange = new LagRange());
       this.addModule(momentum = new Momentum());
+      this.addModule(new Stasis());
       antiBot.enable();
       Collections.sort(modules, Comparator.comparing(Module::getName));
    }

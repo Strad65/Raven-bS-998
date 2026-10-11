@@ -15,6 +15,7 @@ import net.minecraft.util.EntitySelectors;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.MovingObjectPosition.MovingObjectType;
 import net.minecraft.util.Vec3;
 
 public class RotationUtils {
@@ -313,6 +314,18 @@ public class RotationUtils {
             collisionCheck,
             true
          );
+   }
+
+   /**
+    * Block-only ray cast used by scaffold placement verification: liquids are
+    * ignored and anything that is not a block hit is reported as a miss.
+    */
+   public static MovingObjectPosition rayCastBlock(double distance, float yaw, float pitch) {
+      Vec3 eyeVec = mc.thePlayer.getPositionEyes(1.0F);
+      Vec3 lookVec = Utils.getLookVec(yaw, pitch);
+      Vec3 sumVec = eyeVec.addVector(lookVec.xCoord * distance, lookVec.yCoord * distance, lookVec.zCoord * distance);
+      MovingObjectPosition mop = mc.theWorld.rayTraceBlocks(eyeVec, sumVec, false, false, false);
+      return mop != null && mop.typeOfHit == MovingObjectType.BLOCK ? mop : null;
    }
 
    public static MovingObjectPosition rayTraceCustom(double blockReachDistance, float yaw, float pitch) {

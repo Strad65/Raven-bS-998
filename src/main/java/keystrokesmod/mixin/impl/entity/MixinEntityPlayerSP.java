@@ -8,6 +8,7 @@ import keystrokesmod.event.PreUpdateEvent;
 import keystrokesmod.module.ModuleManager;
 import keystrokesmod.module.impl.combat.WTap;
 import keystrokesmod.module.impl.movement.NoSlow;
+import keystrokesmod.module.impl.player.Scaffold2;
 import keystrokesmod.utility.ModuleUtils;
 import keystrokesmod.utility.RotationUtils;
 import net.minecraft.client.Minecraft;
@@ -329,6 +330,25 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer {
          && (ModuleManager.sprint.omniSprint() || this.movementInput.moveForward >= f && flag3)
          && (!this.isUsingItem() && !this.mc.thePlayer.isBlocking() || !stopSprint)
          && !this.isPotionActive(Potion.blindness)) {
+         this.setSprinting(true);
+      }
+
+      // Scaffold drives sprinting itself: its "sprint" mode needs the player to
+      // be genuinely sprinting on the ground so that the telly takeoff can then
+      // release the sprint while it turns around and places. Vanilla only starts
+      // a sprint while the sprint key is held, which cannot happen here, so start
+      // it for the module. Once sprinting, the cancellation test below still
+      // lets Scaffold drop the sprint at will via its suppression policy.
+      Scaffold2 sprintScaffold = ModuleManager.scaffold2;
+      if (sprintScaffold != null
+         && !this.isSprinting()
+         && sprintScaffold.isAlwaysSprinting()
+         && this.onGround
+         && !flag1
+         && flag3
+         && !this.isPotionActive(Potion.blindness)
+         && (this.movementInput.moveForward != 0.0F || this.movementInput.moveStrafe != 0.0F)
+         && (!this.isUsingItem() || !stopSprint)) {
          this.setSprinting(true);
       }
 

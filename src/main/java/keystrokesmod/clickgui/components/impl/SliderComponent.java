@@ -71,7 +71,10 @@ public class SliderComponent extends Component {
       String suffix = this.sliderSetting.getSuffix();
       String valueText;
       if (input == -1.0 && this.sliderSetting.canBeDisabled) {
-         valueText = "§cDisabled";
+         valueText = this.sliderSetting.getMinString() != null ? this.sliderSetting.getMinString() : "§cDisabled";
+         suffix = "";
+      } else if (this.sliderSetting.getMinString() != null && input == this.sliderSetting.getMin()) {
+         valueText = this.sliderSetting.getMinString();
          suffix = "";
       } else {
          if (input != 1.0
