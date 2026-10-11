@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import keystrokesmod.event.PostPlayerInputEvent;
+import keystrokesmod.event.PostUpdateEvent;
 import keystrokesmod.event.PrePlayerInputEvent;
 import keystrokesmod.event.PrePlayerInteractEvent;
 import keystrokesmod.event.PreUpdateEvent;
@@ -763,8 +764,26 @@ public class Scaffold2 extends Module {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onMouse(MouseEvent event) {
-        if (event.button > -1 && !this.allowMouse(event.button)) {
+        // Only presses are swallowed. Letting the matching release through keeps the vanilla
+        // key states in sync, so a swallowed press cannot leave the use key stuck down.
+        if (event.button > -1 && event.buttonstate && !this.allowMouse(event.button)) {
             event.setCanceled(true);
+        }
+    }
+
+    /**
+     * Keep Y on RMB hands the right mouse button over to keep-Y placement, so the vanilla
+     * right-click must not place a block of its own next to the scaffold one. Silencing the
+     * press in {@link #onMouse} only covers buttons pressed from now on: a button that was
+     * already held when the module took over keeps Minecraft's use key down, because the
+     * canceled events never deliver its release either, and the vanilla placement keeps
+     * firing next to the scaffold one. Releasing the key while keep-Y owns the button is the
+     * same guard {@code Scaffold} uses.
+     */
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onPostUpdateKeepYRightClick(PostUpdateEvent event) {
+        if (Utils.nullCheck() && this.isKeepYActive() && Mouse.isButtonDown(1) && this.holdingBlocks()) {
+            KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.getKeyCode(), false);
         }
     }
 
