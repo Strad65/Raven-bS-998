@@ -77,6 +77,11 @@ public class AutoClicker extends Module {
       this.isBlockHitActive = false;
    }
 
+   /** Exposed for Displace: whether a click is currently scheduled. */
+   public boolean isClicking() {
+      return this.nextPressTime > 0L;
+   }
+
    @Override
    public void guiUpdate() {
       Utils.correctValue(this.minCPS, this.maxCPS);
@@ -100,7 +105,9 @@ public class AutoClicker extends Module {
 
             if (leftClick.isToggled() && Mouse.isButtonDown(0)) {
                this.performClick(mc.gameSettings.keyBindAttack.getKeyCode(), 0);
-            } else if (this.rightClick.isToggled() && Mouse.isButtonDown(1)) {
+            } else if (this.rightClick.isToggled() && Mouse.isButtonDown(1) && !ModuleManager.scaffold2.isEnabled()) {
+               // Scaffold2 owns the right click while it is on and swallows the vanilla
+               // placement itself, so faked use presses would only fight its own placement.
                if (this.blocksOnly.isToggled()
                   && (mc.thePlayer.getCurrentEquippedItem() == null || !(mc.thePlayer.getCurrentEquippedItem().getItem() instanceof ItemBlock))) {
                   return;

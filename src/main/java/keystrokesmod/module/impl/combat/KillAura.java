@@ -678,6 +678,13 @@ public class KillAura extends Module {
    }
 
    private void handleSwingAndAttack(double distance, boolean swung) {
+      // Displace integration: let the Displace module override this attack with
+      // a knockback-displaced one (port of the source KillAura Displace checks).
+      int displace = Displace.killAuraOverride(target);
+      if (displace == 2) {
+         this.shouldAttack = false;
+      }
+
       boolean inAttackDistance = this.inRange(target, this.attackRange.getInput() - this.attackv);
       if ((distance <= this.swingRange.getInput() || inAttackDistance)
          && this.shouldAttack
@@ -699,8 +706,10 @@ public class KillAura extends Module {
             }
 
             if (!mc.thePlayer.isBlocking() || !this.disableWhileBlocking.isToggled()) {
-               mc.playerController.attackEntity(mc.thePlayer, target);
-               this.sAttacked = 0;
+               if (displace == 0) {
+                  mc.playerController.attackEntity(mc.thePlayer, target);
+                  this.sAttacked = 0;
+               }
             }
          }
       } else {

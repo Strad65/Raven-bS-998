@@ -28,6 +28,10 @@ public class AimAssist extends Module {
    private ButtonSetting ignoreTeammates;
    private String[] aimModes = new String[]{"Normal", "Silent"};
    private Float[] lookingAt = null;
+   // Exposed for Displace: the entity the assist is currently aiming at.
+   public static Entity target;
+   // Exposed for Displace: when set, the next aim update snaps instantly.
+   public static boolean snap;
 
    public AimAssist() {
       super("AimAssist", Module.category.combat, 0);
@@ -47,13 +51,27 @@ public class AimAssist extends Module {
       return this.aimModes[(int)this.mode.getInput()];
    }
 
+   /** Exposed for Displace: whether the silent aim mode is selected. */
+   public boolean isSilentAim() {
+      return this.mode.getInput() == 1.0;
+   }
+
+   @Override
+   public void onDisable() {
+      target = null;
+      snap = false;
+   }
+
    @SubscribeEvent
    public void onPreUpdate(PreUpdateEvent e) {
       this.lookingAt = null;
+      target = null;
       if (this.mode.getInput() != 0.0 && this.conditionsMet()) {
          Entity en = this.getEnemy();
+         target = en;
          if (en != null) {
-            if (this.speed.getInput() == 100.0) {
+            if (this.speed.getInput() == 100.0 || snap) {
+               snap = false;
                float[] rotations = RotationUtils.getRotations(en);
                if (rotations != null) {
                   float yaw = rotations[0];
@@ -77,8 +95,10 @@ public class AimAssist extends Module {
    public void onUpdate() {
       if (this.mode.getInput() != 1.0 && this.conditionsMet()) {
          Entity en = this.getEnemy();
+         target = en;
          if (en != null) {
-            if (this.speed.getInput() == 100.0) {
+            if (this.speed.getInput() == 100.0 || snap) {
+               snap = false;
                float[] t = Utils.getRotationsOld(en);
                if (t != null) {
                   float y = t[0];

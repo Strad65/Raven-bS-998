@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import keystrokesmod.event.PostPlayerInputEvent;
+import keystrokesmod.event.PostUpdateEvent;
 import keystrokesmod.event.PrePlayerInputEvent;
 import keystrokesmod.event.PrePlayerInteractEvent;
 import keystrokesmod.event.PreUpdateEvent;
@@ -47,6 +48,7 @@ import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.client.config.GuiButtonExt;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -763,9 +765,48 @@ public class Scaffold2 extends Module {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onMouse(MouseEvent event) {
-        if (event.button > -1 && !this.allowMouse(event.button)) {
+        // Only presses are swallowed. Letting the matching release through keeps the vanilla
+        // key states in sync, so a swallowed press cannot leave the use key stuck down.
+        if (event.button > -1 && event.buttonstate && !this.allowMouse(event.button)) {
             event.setCanceled(true);
         }
+    }
+
+    /**
+     * The module owns the mouse while it is on, so the vanilla right click must not place a
+     * block of its own next to the scaffold one. {@link #onMouse} only silences presses made
+     * from now on: a button already held when the module was toggled on keeps Minecraft's use
+     * key down, because a canceled press never delivers its release either. Releasing the key
+     * while a block is held is the same guard {@code Scaffold} runs.
+     */
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onPostUpdateUseKey(PostUpdateEvent event) {
+        if (Utils.nullCheck() && this.holdingBlockItem()) {
+            KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.getKeyCode(), false);
+        }
+    }
+
+    /**
+     * A key release only catches presses that reached a game tick. AutoClicker presses from a
+     * render frame, after the tick has already run, and calls {@link KeyBinding#onTick}, so
+     * {@code Minecraft.rightClickMouse}'s press-time loop still fires the click. Cancelling
+     * the interact event stops the placement inside that loop, before the client-side
+     * prediction and the C08, while the module's own {@code playerController} placements do
+     * not go through it and keep working.
+     */
+    @SubscribeEvent
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        PlayerInteractEvent.Action action = event.action;
+        if ((action == PlayerInteractEvent.Action.RIGHT_CLICK_BLOCK || action == PlayerInteractEvent.Action.RIGHT_CLICK_AIR)
+            && this.holdingBlockItem()) {
+            event.setCanceled(true);
+        }
+    }
+
+    /** True while the held stack is a block, i.e. the vanilla right click could place. */
+    private boolean holdingBlockItem() {
+        ItemStack heldItem = mc.thePlayer == null ? null : mc.thePlayer.getHeldItem();
+        return heldItem != null && heldItem.stackSize > 0 && heldItem.getItem() instanceof ItemBlock;
     }
 
     @SubscribeEvent

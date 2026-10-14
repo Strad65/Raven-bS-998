@@ -12,6 +12,7 @@ import keystrokesmod.module.impl.combat.AimAssist;
 import keystrokesmod.module.impl.combat.AutoClicker;
 import keystrokesmod.module.impl.combat.Backtrack;
 import keystrokesmod.module.impl.combat.ClickAssist;
+import keystrokesmod.module.impl.combat.Displace;
 import keystrokesmod.module.impl.combat.FakeLag;
 import keystrokesmod.module.impl.combat.HitBox;
 import keystrokesmod.module.impl.combat.KillAura;
@@ -242,6 +243,7 @@ public class ModuleManager {
       this.addModule(new SumoFences());
       this.addModule(new Fun.ExtraBobbing());
       this.addModule(killAura = new KillAura());
+      this.addModule(new Displace());
       this.addModule(new Fun.FlameTrail());
       this.addModule(new Fun.SlyPort());
       this.addModule(new ItemESP());
