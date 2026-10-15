@@ -15,6 +15,7 @@ import keystrokesmod.module.impl.combat.ClickAssist;
 import keystrokesmod.module.impl.combat.Displace;
 import keystrokesmod.module.impl.combat.FakeLag;
 import keystrokesmod.module.impl.combat.HitBox;
+import keystrokesmod.module.impl.combat.JumpReset;
 import keystrokesmod.module.impl.combat.KillAura;
 import keystrokesmod.module.impl.combat.LagRange;
 import keystrokesmod.module.impl.combat.Reach;
@@ -159,6 +160,7 @@ public class ModuleManager {
    public static CTWFly ctwFly;
    public static Blink blink;
    public static Velocity velocity;
+   public static JumpReset jumpReset;
    public static TargetStrafe targetStrafe;
    public static FastFall fastFall;
    public static AntiVoid antiVoid;
@@ -188,6 +190,7 @@ public class ModuleManager {
       this.addModule(extendCamera = new ExtendCamera());
       this.addModule(new RodAimbot());
       this.addModule(velocity = new Velocity());
+      this.addModule(jumpReset = new JumpReset());
       this.addModule(bhop = new Bhop());
       this.addModule(invManager = new InvManager());
       this.addModule(new ChatBypass());
