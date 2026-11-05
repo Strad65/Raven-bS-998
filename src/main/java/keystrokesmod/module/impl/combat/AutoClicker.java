@@ -25,8 +25,10 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 public class AutoClicker extends Module {
-   public SliderSetting minCPS;
-   public SliderSetting maxCPS;
+   public SliderSetting leftMinCPS;
+   public SliderSetting leftMaxCPS;
+   public SliderSetting rightMinCPS;
+   public SliderSetting rightMaxCPS;
    public SliderSetting jitter;
    public SliderSetting blockHitChance;
    public static ButtonSetting leftClick;
@@ -49,8 +51,10 @@ public class AutoClicker extends Module {
    public AutoClicker() {
       super("AutoClicker", Module.category.combat, 0);
       this.registerSetting(new DescriptionSetting("Best with delay remover."));
-      this.registerSetting(this.minCPS = new SliderSetting("Min CPS", 9.0, 1.0, 20.0, 0.5));
-      this.registerSetting(this.maxCPS = new SliderSetting("Max CPS", 12.0, 1.0, 20.0, 0.5));
+      this.registerSetting(this.leftMinCPS = new SliderSetting("Left min CPS", 9.0, 1.0, 20.0, 0.5));
+      this.registerSetting(this.leftMaxCPS = new SliderSetting("Left max CPS", 12.0, 1.0, 20.0, 0.5));
+      this.registerSetting(this.rightMinCPS = new SliderSetting("Right min CPS", 9.0, 1.0, 20.0, 0.5));
+      this.registerSetting(this.rightMaxCPS = new SliderSetting("Right max CPS", 12.0, 1.0, 20.0, 0.5));
       this.registerSetting(this.jitter = new SliderSetting("Jitter", 0.0, 0.0, 3.0, 0.1));
       this.registerSetting(this.blockHitChance = new SliderSetting("Block hit chance", "%", 0.0, 0.0, 100.0, 1.0));
       this.registerSetting(leftClick = new ButtonSetting("Left click", true));
@@ -84,7 +88,8 @@ public class AutoClicker extends Module {
 
    @Override
    public void guiUpdate() {
-      Utils.correctValue(this.minCPS, this.maxCPS);
+      Utils.correctValue(this.leftMinCPS, this.leftMaxCPS);
+      Utils.correctValue(this.rightMinCPS, this.rightMaxCPS);
    }
 
    @SubscribeEvent
@@ -125,9 +130,9 @@ public class AutoClicker extends Module {
          } else if (this.inventoryFill.isToggled() && mc.currentScreen instanceof GuiInventory) {
             if (Mouse.isButtonDown(0) && (Keyboard.isKeyDown(54) || Keyboard.isKeyDown(42))) {
                if (this.nextReleaseTime == 0L || this.nextPressTime == 0L) {
-                  this.updateClickDelay();
+                  this.updateClickDelay(0);
                } else if (System.currentTimeMillis() > this.nextPressTime) {
-                  this.updateClickDelay();
+                  this.updateClickDelay(0);
                   this.inventoryClick(mc.currentScreen);
                }
             } else {
@@ -192,7 +197,7 @@ public class AutoClicker extends Module {
                this.isBlockHitActive = true;
             }
 
-            this.updateClickDelay();
+            this.updateClickDelay(mouse);
          } else if (currentTime > this.nextReleaseTime || this.isBlockHitActive) {
             KeyBinding.setKeyBindState(key, false);
             ReflectionUtils.setButton(mouse, false);
@@ -203,12 +208,14 @@ public class AutoClicker extends Module {
             }
          }
       } else {
-         this.updateClickDelay();
+         this.updateClickDelay(mouse);
       }
    }
 
-   public void updateClickDelay() {
-      double cps = Utils.getRandomValue(this.minCPS, this.maxCPS, this.rand) + 0.4 * this.rand.nextDouble();
+   public void updateClickDelay(int mouse) {
+      SliderSetting minCPS = mouse == 1 ? this.rightMinCPS : this.leftMinCPS;
+      SliderSetting maxCPS = mouse == 1 ? this.rightMaxCPS : this.leftMaxCPS;
+      double cps = Utils.getRandomValue(minCPS, maxCPS, this.rand) + 0.4 * this.rand.nextDouble();
       long delay = Math.round(1000.0 / cps);
       long currentTime = System.currentTimeMillis();
       if (currentTime > this.nextMultiplierUpdateTime) {

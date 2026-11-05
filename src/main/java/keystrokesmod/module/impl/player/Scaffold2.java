@@ -482,7 +482,7 @@ public class Scaffold2 extends Module {
         this.registerSetting(this.jumpFacingForward = new ButtonSetting("Jump facing forward", false));
         this.registerSetting(this.editPosition = new ButtonSetting("Edit position", () -> mc.displayGuiScreen(new Scaffold2.EditScreen())));
         this.registerSetting(this.debugMode = new SliderSetting("Debug", 0, DEBUG_OPTIONS));
-        this.closetModule = true;
+        this.closetModule = false;
     }
 
     // ------------------------------------------------------------------
